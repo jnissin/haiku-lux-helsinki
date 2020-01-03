@@ -1,15 +1,9 @@
 import codeanticode.syphon.*;
 
-ArrayList<Particle> PARTICLES;
-Theme SELECTED_THEME;
-PGraphics PG_CANVAS;
 int INITIAL_PARTICLE_COUNT = 200;
 int MAX_PARTICLES = 2000;
-int SEED = 1339;
-PerlinNoisePatterns APP;
+int RANDOM_SEED = 1339;
 int SMOOTHING = 4;
-Kinect2OpticalFlow K2_OPTICAL_FLOW;
-SyphonServer SYPHON_SERVER;
 
 int PARTICLE_GENERATION_COOLDOWN_MS = 100;
 int LAST_PARTICLE_GENERATION_TIME_MS = 0;
@@ -19,10 +13,16 @@ int THEME_IDX = 0;
 int RESET_COUNT = 0;
 boolean INITIALIZED = false;
 
+ArrayList<Particle> PARTICLES;
+Theme SELECTED_THEME;
+PGraphics PG_CANVAS;
+PerlinNoisePatterns APP;
+Kinect2OpticalFlow K2_OPTICAL_FLOW;
+SyphonServer SYPHON_SERVER;
 
 public void settings()
 {
-  size(1024, 1024, P2D);
+  size(1920, 1280, P2D);
   smooth(SMOOTHING);
 }
 
@@ -38,8 +38,8 @@ public void setup()
 
 public void initialize()
 {
-  noiseSeed(SEED + RESET_COUNT);
-  randomSeed(SEED + RESET_COUNT);
+  noiseSeed(RANDOM_SEED + RESET_COUNT);
+  randomSeed(RANDOM_SEED + RESET_COUNT);
   noiseDetail((int)random(1, 4), random(0.2, 0.5));
   
   PG_CANVAS.smooth(SMOOTHING);
@@ -88,7 +88,7 @@ public void draw()
   image(PG_CANVAS, 0, 0);
   SYPHON_SERVER.sendImage(PG_CANVAS);
   
-  // Update the theme index
+  // Update the theme index according to the particle index
   THEME_IDX = (PARTICLE_IDX/PARTICLE_THEME_CHANGE_COUNT)%THEMES.length;
   SELECTED_THEME = THEMES[THEME_IDX];
 }
@@ -100,10 +100,11 @@ public void updateOpticalFlow()
   if (millis() > LAST_PARTICLE_GENERATION_TIME_MS + PARTICLE_GENERATION_COOLDOWN_MS)
   { 
     PGraphics2D oflowTexture = K2_OPTICAL_FLOW.getOpticalFlowTexture();
-   
-    fill(0);
-    rect(0, 0, oflowTexture.width, oflowTexture.height);
-    image(oflowTexture, 0, 0);
+    
+    // Uncomment to view oflow texture as debug
+    //fill(0);
+    //rect(0, 0, oflowTexture.width, oflowTexture.height);
+    //image(oflowTexture, 0, 0);
     
     for (int i = 0; i < oflowTexture.width * oflowTexture.height; i++)
     {
@@ -120,7 +121,6 @@ public void updateOpticalFlow()
         int xMax = K2_OPTICAL_FLOW.oflowBinWidth * (x+1);
         int yMin = K2_OPTICAL_FLOW.oflowBinHeight * y;
         int yMax = K2_OPTICAL_FLOW.oflowBinHeight * (y+1);
-        //println("Creating particle @ " + (int)x_pos + ", " + (int)y_pos);
 
         spawnParticles(1, xMin, xMax, yMin, yMax);
       }
@@ -136,7 +136,8 @@ public void spawnParticles(int num, float xMin, float xMax, float yMin, float yM
   {
     float xPos = random(xMin, xMax);
     float yPos = random(yMin, yMax);
-    
+    //println("Creating particle @ " + (int)xPos + ", " + (int)yPos);
+
     float t = (float)(PARTICLE_IDX%PARTICLE_THEME_CHANGE_COUNT)/PARTICLE_THEME_CHANGE_COUNT;
     float radius = map(t, 0f, 1f, 10f, 2f);
     float speed = map(radius, 4f, 7f, 0.4f, 0.8f);

@@ -1,21 +1,24 @@
 import codeanticode.syphon.*;
 
-ArrayList<TriangleChain> TRIANGLE_CHAINS;
-float R, r;
-boolean pressed = false;
+boolean PRESSED = false;
 
 Theme SELECTED_THEME;
 float TRIANGLE_SIZE = 60;
 int MIN_TRIANGLE_CHAIN_COUNT = 10;
 int MAX_TRIANGLE_CHAIN_COUNT = 500;
 int INITIAL_TRIANGLE_CHAIN_COUNT = 10;
+int SMOOTHING = 4;
 
+ArrayList<TriangleChain> TRIANGLE_CHAINS;
 PGraphics PG_CANVAS;
 SyphonServer SYPHON_SERVER;
+float R;
+float r;
 
 public void settings()
 {
-  size(1024, 1024, P3D); 
+  size(1920, 1280, P3D); 
+  smooth(SMOOTHING);
 }
 
 public void setup()
@@ -27,6 +30,7 @@ public void setup()
 
 public void initialize()
 {
+  PG_CANVAS.smooth(SMOOTHING);
   TRIANGLE_CHAINS = new ArrayList<TriangleChain>();
   R = TRIANGLE_SIZE;//random(15, 120);
   r = sqrt(3) * R / 2;
@@ -40,7 +44,7 @@ public void draw()
 
   
   // If mouse is pressed add new triangle chains
-  if (pressed)
+  if (PRESSED)
   {
     spawnTriangleChains(1);
   }
@@ -78,27 +82,31 @@ public void draw()
   
   if (millis()%20 == 0)
   {
-    pressed = true;
+    PRESSED = true;
   }
   else
   {
-    pressed = false;
+    PRESSED = false;
   }
 }
 
 public void mousePressed()
 {
-  pressed = true;
+  PRESSED = true;
 }
 
 public void mouseReleased()
 {
-  pressed = false;
+  PRESSED = false;
 }
 
 public void keyPressed()
-{ 
-  initialize();
+{
+  // Use 'n' to navigate to next theme
+  if (key == 'n')
+  {
+    initialize();
+  }
 }
 
 public void spawnTriangleChains(int num)

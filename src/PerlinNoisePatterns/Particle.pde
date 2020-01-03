@@ -42,7 +42,7 @@ class Particle
   
   public void update()
   {
-    float angle = noise(this.position.x/NOISE_SCALE, this.position.y/NOISE_SCALE) * TWO_PI * NOISE_SCALE/4.0; //* NOISE_SCALE;
+    float angle = noise(this.position.x/NOISE_SCALE, this.position.y/NOISE_SCALE) * TWO_PI * NOISE_SCALE/4.0;
     this.direction.set(cos(angle), sin(angle), 0f);
     this.direction.normalize();
     this.velocity = this.direction.copy();
