@@ -8,7 +8,7 @@ int MAX_PARTICLES = 2000;
 int SEED = 1339;
 PerlinNoisePatterns APP;
 int SMOOTHING = 4;
-OpticalFlow OPTICAL_FLOW;
+Kinect2OpticalFlow K2_OPTICAL_FLOW;
 SyphonServer SYPHON_SERVER;
 
 int PARTICLE_GENERATION_COOLDOWN_MS = 100;
@@ -32,7 +32,7 @@ public void setup()
   PG_CANVAS = createGraphics(width, height, P2D);
   SELECTED_THEME = THEMES[THEME_IDX];
   PARTICLES = new ArrayList<Particle>();
-  OPTICAL_FLOW = new OpticalFlow(1280/2, 720/2, 1280/(2*16), 720/(2*16));
+  K2_OPTICAL_FLOW = new Kinect2OpticalFlow(32);
   SYPHON_SERVER = new SyphonServer(this, "Processing: Perlin Noise Patterns");
 }
 
@@ -95,29 +95,31 @@ public void draw()
 
 public void updateOpticalFlow()
 {
-  OPTICAL_FLOW.update();
+  K2_OPTICAL_FLOW.update();
   
   if (millis() > LAST_PARTICLE_GENERATION_TIME_MS + PARTICLE_GENERATION_COOLDOWN_MS)
   { 
-    PGraphics2D oflowTexture = OPTICAL_FLOW.getOpticalFlowTexture();
+    PGraphics2D oflowTexture = K2_OPTICAL_FLOW.getOpticalFlowTexture();
    
-    //fill(0);
-    //rect(0, 0, PG_OFLOW.width, PG_OFLOW.height);
-    //image(PG_OFLOW, 0, 0);
+    fill(0);
+    rect(0, 0, oflowTexture.width, oflowTexture.height);
+    image(oflowTexture, 0, 0);
     
     for (int i = 0; i < oflowTexture.width * oflowTexture.height; i++)
     {
       int y = i/oflowTexture.height;
       int x = i%oflowTexture.width;
       color c = oflowTexture.pixels[i];
-      float b = brightness(c);
+      
+      // Depth is encoded into the alpha channel
+      float d = alpha(c);
 
-      if (b == 255)
+      if (d == 255)
       {
-        int xMin = OPTICAL_FLOW.oflowBinWidth * x;
-        int xMax = OPTICAL_FLOW.oflowBinWidth * (x+1);
-        int yMin = OPTICAL_FLOW.oflowBinHeight * y;
-        int yMax = OPTICAL_FLOW.oflowBinHeight * (y+1);
+        int xMin = K2_OPTICAL_FLOW.oflowBinWidth * x;
+        int xMax = K2_OPTICAL_FLOW.oflowBinWidth * (x+1);
+        int yMin = K2_OPTICAL_FLOW.oflowBinHeight * y;
+        int yMax = K2_OPTICAL_FLOW.oflowBinHeight * (y+1);
         //println("Creating particle @ " + (int)x_pos + ", " + (int)y_pos);
 
         spawnParticles(1, xMin, xMax, yMin, yMax);

@@ -4,9 +4,12 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
-import processing.video.Capture;
 
-public class OpticalFlow
+import org.openkinect.freenect.*;
+import org.openkinect.freenect2.*;
+import org.openkinect.processing.*;
+
+public class Kinect2OpticalFlow
 {
   public int cameraWidth;
   public int cameraHeight;
@@ -17,28 +20,34 @@ public class OpticalFlow
   
   private DwPixelFlow pfContext;
   private DwOpticalFlow pfOpticalFlow;
-  private Capture cam;
+  private Kinect2 kinect2;
   private PGraphics2D pgCam;
   private PGraphics2D pgOflow;
   
-  public OpticalFlow(int cameraWidth, int cameraHeight, int oflowWidth, int oflowHeight)
+  public Kinect2OpticalFlow(int oflowDivisor)
   {
-    this.cameraWidth = cameraWidth;
-    this.cameraHeight = cameraHeight;
-    this.oflowWidth = oflowWidth;
-    this.oflowHeight = oflowHeight;
+    // Initialize Kinect 2
+    this.kinect2 = new Kinect2(APP);
+    this.kinect2.initRegistered();
+    this.kinect2.initDevice();
     
-    this.oflowBinWidth = width/oflowWidth;
-    this.oflowBinHeight = height/oflowHeight;
+    // Kinect 2 registered image is 512x424
+    this.cameraWidth = kinect2.depthWidth;
+    this.cameraHeight = kinect2.depthWidth;
+    
+    // Divide by oflowDivisor to make the optical flow image smaller
+    // to improve performance
+    this.oflowWidth = cameraWidth/oflowDivisor;
+    this.oflowHeight = cameraHeight/oflowDivisor;
+    
+    this.oflowBinWidth = width/this.oflowWidth;
+    this.oflowBinHeight = height/this.oflowHeight;
     
     this.pfContext = new DwPixelFlow(APP);
     this.pfContext.print();
     this.pfContext.printGL();
     
     this.pfOpticalFlow = new DwOpticalFlow(this.pfContext, this.cameraWidth, this.cameraHeight);
-  
-    this.cam = new Capture(APP, this.cameraWidth, cameraHeight, 30);
-    this.cam.start();
     
     this.pgCam = (PGraphics2D) createGraphics(this.cameraWidth, this.cameraHeight, P2D);
     this.pgCam.noSmooth();
@@ -48,19 +57,14 @@ public class OpticalFlow
    
   public void update()
   {
-    if (this.cam.available())
-    {
-      this.cam.read();
-    
-      // Render camera image to off-screen buffer
-      this.pgCam.beginDraw();
-      this.pgCam.clear();
-      this.pgCam.image(this.cam, 0, 0);
-      this.pgCam.endDraw();
-    
-      // Update optical flow
-      this.pfOpticalFlow.update(this.pgCam);
-    }
+    // Render camera image to off-screen buffer
+    this.pgCam.beginDraw();
+    this.pgCam.clear();
+    this.pgCam.image(kinect2.getRegisteredImage(), 0, 0);
+    this.pgCam.endDraw();
+  
+    // Update optical flow
+    this.pfOpticalFlow.update(this.pgCam);
   
     // Render optical flow as velocity shading to the texture
     this.pgOflow.beginDraw();
