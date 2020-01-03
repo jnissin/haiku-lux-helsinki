@@ -1,7 +1,7 @@
 import codeanticode.syphon.*;
 
 int INITIAL_PARTICLE_COUNT = 200;
-int MAX_PARTICLES = 1000;
+int MAX_PARTICLES = 2000;
 int RANDOM_SEED = 1339;
 int SMOOTHING = 4;
 
@@ -23,7 +23,6 @@ SyphonServer SYPHON_SERVER;
 int TARGET_FRAME_RATE = 30;
 int LAST_PARTICLE_UPDATE = 0;
 int LAST_OFLOW_UPDATE = 0;
-int PARTICLE_UPDATE_INTERVAL = 1000/TARGET_FRAME_RATE;
 int OFLOW_UPDATE_INTERVAL = 1000/(TARGET_FRAME_RATE/3);
 
 
@@ -42,7 +41,6 @@ public void setup()
   K2_OPTICAL_FLOW = new Kinect2OpticalFlow(32);
   SYPHON_SERVER = new SyphonServer(this, "Processing: Perlin Noise Patterns");
   frameRate(TARGET_FRAME_RATE);
-  thread("updateParticles");
 }
 
 public void initialize()
@@ -64,26 +62,6 @@ public void initialize()
   
   RESET_COUNT++;
   INITIALIZED = true;
-}
-
-public void updateParticles()
-{
-  while (true)
-  {
-    if (millis() - LAST_PARTICLE_UPDATE > PARTICLE_UPDATE_INTERVAL)
-    {
-      if (INITIALIZED)
-      {
-        for (int i = 0; i < PARTICLES.size(); i++)
-        {
-          PARTICLES.get(i).update();
-        }
-      }
-      
-      LAST_PARTICLE_UPDATE = millis();
-      delay(PARTICLE_UPDATE_INTERVAL);
-    }
-  }
 }
 
 public void draw()
@@ -112,7 +90,7 @@ public void draw()
   // Update and display all the particles 
   for (int i = 0; i < PARTICLES.size(); i++)
   {
-    //PARTICLES.get(i).update();
+    PARTICLES.get(i).update();
     PARTICLES.get(i).display(PG_CANVAS);
   }
   
