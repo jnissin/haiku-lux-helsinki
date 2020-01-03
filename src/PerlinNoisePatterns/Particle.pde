@@ -10,7 +10,7 @@ class Particle
   
   private int age;
   
-  private final static int INITIAL_UPDATE_COUNT = 10;
+  private final static int INITIAL_UPDATE_COUNT = 500;
   private final static float BOUNDS_MARGIN = 300.0;
   private final static float NOISE_SCALE = 256.0;
   

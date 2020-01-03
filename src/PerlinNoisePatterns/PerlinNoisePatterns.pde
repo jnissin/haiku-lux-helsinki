@@ -3,9 +3,9 @@ import codeanticode.syphon.*;
 int INITIAL_PARTICLE_COUNT = 200;
 int MAX_PARTICLES = 2000;
 int RANDOM_SEED = 1339;
-int SMOOTHING = 4;
+int SMOOTHING = 2;
 
-int PARTICLE_GENERATION_COOLDOWN_MS = 100;
+int PARTICLE_GENERATION_COOLDOWN_MS = 300;
 int LAST_PARTICLE_GENERATION_TIME_MS = 0;
 int PARTICLE_IDX = 0;
 int PARTICLE_THEME_CHANGE_COUNT = 3000;
@@ -89,7 +89,7 @@ public void draw()
 
   // Update and display all the particles 
   for (int i = 0; i < PARTICLES.size(); i++)
-  {
+  { 
     PARTICLES.get(i).update();
     PARTICLES.get(i).display(PG_CANVAS);
   }
@@ -109,7 +109,7 @@ public void updateOpticalFlow()
 {
   K2_OPTICAL_FLOW.update();
   
-  if (millis() > LAST_PARTICLE_GENERATION_TIME_MS + PARTICLE_GENERATION_COOLDOWN_MS)
+  if (millis() - LAST_PARTICLE_GENERATION_TIME_MS > PARTICLE_GENERATION_COOLDOWN_MS)
   { 
     PGraphics2D oflowTexture = K2_OPTICAL_FLOW.getOpticalFlowTexture();
     
