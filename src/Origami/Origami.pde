@@ -8,6 +8,7 @@ int MIN_TRIANGLE_CHAIN_COUNT = 10;
 int MAX_TRIANGLE_CHAIN_COUNT = 500;
 int INITIAL_TRIANGLE_CHAIN_COUNT = 10;
 int SMOOTHING = 4;
+int TARGET_FRAME_RATE = 30;
 
 ArrayList<TriangleChain> TRIANGLE_CHAINS;
 PGraphics PG_CANVAS;
@@ -17,7 +18,7 @@ float r;
 
 public void settings()
 {
-  size(1920, 1280, P3D); 
+  size(1920/2, 1280/2, P3D); 
   smooth(SMOOTHING);
 }
 
@@ -25,6 +26,7 @@ public void setup()
 {
   PG_CANVAS = createGraphics(width, height, P3D);
   SYPHON_SERVER = new SyphonServer(this, "Processing: Origami");
+  frameRate(TARGET_FRAME_RATE);
   initialize();
 }
 
@@ -42,7 +44,6 @@ public void draw()
 {
   surface.setTitle("Origami: " + SELECTED_THEME.name + " @ " + (int)frameRate + " FPS");
 
-  
   // If mouse is pressed add new triangle chains
   if (PRESSED)
   {
