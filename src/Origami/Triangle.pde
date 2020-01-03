@@ -70,25 +70,25 @@ public class Triangle
     return newTriangle;
   }
 
-  public void display()
+  public void display(PGraphics pg)
   {
     if (!isFinished())
     {
       float alpha = map(this.age, 0, this.maxAge, 255, 0);
-      beginShape(TRIANGLES);
-      fill(this.triangleColor, alpha);
-      stroke(20, alpha);
-      vertex(A.x, A.y, 0);
-      vertex(B.x, B.y, 0);
-      vertex(C.x, C.y, 0);
+      pg.beginShape(TRIANGLES);
+      pg.fill(this.triangleColor, alpha);
+      pg.stroke(20, alpha);
+      pg.vertex(A.x, A.y, 0);
+      pg.vertex(B.x, B.y, 0);
+      pg.vertex(C.x, C.y, 0);
 
       if (!this.last && this.theta < PI)
       {
-        vertex(B.x, B.y, 0);
-        vertex(C.x, C.y, 0);
-        vertex(D.x, D.y, D.z);
+        pg.vertex(B.x, B.y, 0);
+        pg.vertex(C.x, C.y, 0);
+        pg.vertex(D.x, D.y, D.z);
       }         
-      endShape();
+      pg.endShape();
     }
   }
   

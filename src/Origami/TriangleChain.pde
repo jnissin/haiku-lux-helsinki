@@ -27,12 +27,12 @@ public class TriangleChain
     }
   }
 
-  public void display()
-  {    
-    pushMatrix();
-    translate(origin.x, origin.y);
-    rotate(beta);
-    translate(-origin.x, -origin.y);
+  public void display(PGraphics pg)
+  {
+    pg.pushMatrix();
+    pg.translate(origin.x, origin.y);
+    pg.rotate(beta);
+    pg.translate(-origin.x, -origin.y);
     
     Triangle toAdd = null;
     Triangle toRemove = null;
@@ -40,7 +40,7 @@ public class TriangleChain
     for (Triangle t : triangles)
     {
       toAdd = t.update();
-      t.display();
+      t.display(pg);
 
       if (t.isFinished())
       {
@@ -56,7 +56,7 @@ public class TriangleChain
       // Add the new triangle and display it - this avoids flickering
       // if the triangle underneath is removed next
       triangles.add(toAdd);
-      toAdd.display();
+      toAdd.display(pg);
     }
     
     // Remove finished triangles
@@ -65,7 +65,7 @@ public class TriangleChain
       triangles.remove(toRemove);
     }
     
-    popMatrix();
+    pg.popMatrix();
     this.age++;
   }
   

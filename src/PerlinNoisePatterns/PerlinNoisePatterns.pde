@@ -1,14 +1,15 @@
-import java.util.*;
+import codeanticode.syphon.*;
 
 ArrayList<Particle> PARTICLES;
 Theme SELECTED_THEME;
-PGraphics PG;
+PGraphics PG_CANVAS;
 int INITIAL_PARTICLE_COUNT = 200;
 int MAX_PARTICLES = 2000;
 int SEED = 1339;
 PerlinNoisePatterns APP;
 int SMOOTHING = 4;
 OpticalFlow OPTICAL_FLOW;
+SyphonServer SYPHON_SERVER;
 
 int PARTICLE_GENERATION_COOLDOWN_MS = 100;
 int LAST_PARTICLE_GENERATION_TIME_MS = 0;
@@ -17,6 +18,7 @@ int PARTICLE_THEME_CHANGE_COUNT = 3000;
 int THEME_IDX = 0;
 int RESET_COUNT = 0;
 boolean INITIALIZED = false;
+
 
 public void settings()
 {
@@ -27,10 +29,11 @@ public void settings()
 public void setup()
 {
   APP = this;
-  PG = createGraphics(width, height, P2D);
+  PG_CANVAS = createGraphics(width, height, P2D);
   SELECTED_THEME = THEMES[THEME_IDX];
   PARTICLES = new ArrayList<Particle>();
   OPTICAL_FLOW = new OpticalFlow(1280/2, 720/2, 1280/(2*16), 720/(2*16));
+  SYPHON_SERVER = new SyphonServer(this, "Processing: Perlin Noise Patterns");
 }
 
 public void initialize()
@@ -39,12 +42,12 @@ public void initialize()
   randomSeed(SEED + RESET_COUNT);
   noiseDetail((int)random(1, 4), random(0.2, 0.5));
   
-  PG.smooth(SMOOTHING);
-  PG.beginDraw();
-  PG.clear();
-  PG.noStroke();
-  PG.background(SELECTED_THEME.backgroundColor);
-  PG.endDraw();
+  PG_CANVAS.smooth(SMOOTHING);
+  PG_CANVAS.beginDraw();
+  PG_CANVAS.clear();
+  PG_CANVAS.noStroke();
+  PG_CANVAS.background(SELECTED_THEME.backgroundColor);
+  PG_CANVAS.endDraw();
   
   PARTICLES.clear();  
   PARTICLE_IDX = 0;
@@ -59,7 +62,7 @@ public void draw()
   surface.setTitle("Flow: " + SELECTED_THEME.name + " @ " + (int)frameRate + " FPS");
   
   // Begin draw
-  PG.beginDraw();
+  PG_CANVAS.beginDraw();
 
   // For some reason this needs to be right here otherwise the graphics will bug out
   // [+] If we have not initialized the scene initialize it
@@ -76,13 +79,14 @@ public void draw()
   for (int i = 0; i < PARTICLES.size(); i++)
   {
     PARTICLES.get(i).update();
-    PARTICLES.get(i).display(PG);
+    PARTICLES.get(i).display(PG_CANVAS);
   }
   
-  PG.endDraw();
+  PG_CANVAS.endDraw();
   
   // Show the pgraphics buffer
-  image(PG, 0, 0);
+  image(PG_CANVAS, 0, 0);
+  SYPHON_SERVER.sendImage(PG_CANVAS);
   
   // Update the theme index
   THEME_IDX = (PARTICLE_IDX/PARTICLE_THEME_CHANGE_COUNT)%THEMES.length;
